@@ -106,7 +106,7 @@ services:
           - "0.0.0.0:5555:22"
 
     oj-frontend:
-        image: oj_frontend:1.1
+        image: junhp1234/oj_frontend:latest
         container_name: oj-frontend
         restart: always
         #command: /bin/bash -c "while true; do echo test; sleep 100; done"
