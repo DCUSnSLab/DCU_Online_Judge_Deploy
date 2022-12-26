@@ -14,16 +14,7 @@ services:
         volumes:
           - ./judge0.conf:/judge0.conf:ro
         ports:
-          - "0.0.0.0:2358:2358"
-        privileged: true
-        <<: *default-logging
-        restart: always
-
-    workers:
-        image: judge0/judge0:1.13.0
-        command: ["./scripts/workers"]
-        volumes:
-          - ./judge0.conf:/judge0.conf:ro
+          - "2358:2358"
         privileged: true
         <<: *default-logging
         restart: always
@@ -115,7 +106,7 @@ services:
           - "0.0.0.0:5555:22"
 
     oj-frontend:
-        image: junhp1234/oj_frontend:latest
+        image: oj_frontend:1.1
         container_name: oj-frontend
         restart: always
         #command: /bin/bash -c "while true; do echo test; sleep 100; done"
