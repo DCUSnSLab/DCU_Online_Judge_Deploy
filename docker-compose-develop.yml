@@ -8,17 +8,6 @@ x-logging:
         max-size: 100m
 
 services:
-    judge0_server:
-        container_name: judge0_server
-        image: judge0/judge0:1.13.0
-        volumes:
-          - ./judge0.conf:/judge0.conf:ro
-        ports:
-          - "2358:2358"
-        privileged: true
-        <<: *default-logging
-        restart: always
-
     db:
         image: postgres:13.0
         container_name: judge0_db
@@ -38,6 +27,27 @@ services:
         env_file: judge0.conf
         volumes:
           - redis-data:/data
+        <<: *default-logging
+        restart: always
+
+    workers:
+        container_name: judge0_workers
+        image: judge0/judge0:1.13.0
+        command: ["./scripts/workers"]
+        volumes:
+          - ./judge0.conf:/judge0.conf:ro
+        privileged: true
+        <<: *default-logging
+        restart: always
+
+    judge0_server:
+        container_name: judge0_server
+        image: judge0/judge0:1.13.0
+        volumes:
+          - ./judge0.conf:/judge0.conf:ro
+        ports:
+          - "2358:2358"
+        privileged: true
         <<: *default-logging
         restart: always
 
