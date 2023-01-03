@@ -8,7 +8,7 @@ x-logging:
         max-size: 100m
 
 services:
-    db:
+    judge0_db:
         image: postgres:13.0
         container_name: judge0_db
         env_file: judge0.conf
@@ -17,7 +17,7 @@ services:
         <<: *default-logging
         restart: always
 
-    redis:
+    judge0_redis:
         image: redis:6.0
         container_name: judge0_redis
         command: [
@@ -30,7 +30,7 @@ services:
         <<: *default-logging
         restart: always
 
-    workers:
+    judge0_workers:
         container_name: judge0_workers
         image: judge0/judge0:1.13.0
         command: ["./scripts/workers"]
@@ -39,6 +39,9 @@ services:
         privileged: true
         <<: *default-logging
         restart: always
+        depends_on:
+          - judge0_db
+          - judge0_redis
 
     judge0_server:
         container_name: judge0_server
@@ -50,6 +53,10 @@ services:
         privileged: true
         <<: *default-logging
         restart: always
+        depends_on:
+          - judge0_db
+          - judge0_redis
+          - judge0_workers
 
     oj-redis:
         image: redis:4.0-alpine
