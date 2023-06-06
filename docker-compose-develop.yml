@@ -61,6 +61,7 @@ services:
           - POSTGRES_USER=onlinejudge
           - POSTGRES_PASSWORD=onlinejudge
           - JUDGE_SERVER_TOKEN=CHANGE_THIS
+          - OPENAI_API_KEY=CHANGE_THIS
           # - FORCE_HTTPS=1
           # - STATIC_CDN_HOST=cdn.oj.com
         ports:
