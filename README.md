@@ -92,8 +92,8 @@ git clone https://github.com/DCUSnSLab/DCU-Online-Judge-Deploy.git
 
 
 ```bash
-docker-compose -f docker-compose.yaml up -d
-# 개발 환경 구성의 경우 docker-compose -f docker-compose-develop.yaml up -d
+docker-compose -f docker-compose.yml up -d
+# 개발 환경 구성의 경우 docker-compose -f docker-compose-develop.yml up -d
 ```
 
 서비스 URL은 ```localhost:80``` 
