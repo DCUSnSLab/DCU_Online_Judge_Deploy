@@ -8,7 +8,7 @@ services:
           - ./data/redis:/data
   
     oj-postgres:
-        image: snslabdocker/oj_postgres:latest
+        image: postgres:10-alpine
         container_name: oj-postgres
         restart: always
         volumes:
@@ -17,14 +17,11 @@ services:
           - POSTGRES_DB=onlinejudge
           - POSTGRES_USER=onlinejudge
           - POSTGRES_PASSWORD=onlinejudge
-        ports:
-          - "5432:5432"
 
     judge-server:
         image: snslabdocker/judge_server:latest
         container_name: judge-server
         restart: always
-        read_only: true
         cap_drop:
           - SETPCAP
           - MKNOD
@@ -44,11 +41,9 @@ services:
           - TOKEN=CHANGE_THIS
           - judger_debug=1
     oj-backend:
-        image: snslabdocker/ec_backend:latest
-        #command: /app/start_ssh.sh
+        image: snslabdocker/dcu_code_be:0.4
         container_name: oj-backend
         restart: always
-
         depends_on:
           - oj-redis
           - oj-postgres
@@ -67,11 +62,11 @@ services:
           - "0.0.0.0:5555:22"
 
     oj-frontend:
-        image: snslabdocker/ec_frontend:latest
+        image: snslabdocker/dcu_code_fe:0.9
         container_name: oj-frontend
         restart: always
         #command: /bin/bash -c "while true; do echo test; sleep 100; done"
-        command: sh -c "service ssh start && /bin/bash start_node.sh"
+        command: /bin/bash start_node.sh
         depends_on:
           - oj-backend
         volumes:
@@ -79,9 +74,9 @@ services:
         environment:
                 - TARGET=http://oj-backend:8000
         ports:
-          - "0.0.0.0:5556:22"
           - "0.0.0.0:80:80"
           - "0.0.0.0:443:1443"
+          - "0.0.0.0:5556:22"
           
     pgadmin:
         container_name: pgadmin4_container
