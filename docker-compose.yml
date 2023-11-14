@@ -13,7 +13,7 @@ services:
         restart: always
         volumes:
           - ./data/postgres:/var/lib/postgresql/data
-        environment:
+        environment: # 데이터베이스 생성 및 초기화를 위한 환경 변수
           - POSTGRES_DB=onlinejudge
           - POSTGRES_USER=onlinejudge
           - POSTGRES_PASSWORD=onlinejudge
@@ -22,6 +22,7 @@ services:
         image: snslabdocker/judge_server:latest
         container_name: judge-server
         restart: always
+        # judge-server의 경우 아래 read_only, cap_drop 과 같이 내부에서 수행할 수 있는 작업이 제한됨
         read_only: true
         cap_drop:
           - SETPCAP
@@ -41,26 +42,27 @@ services:
           - BACKEND_URL=http://oj-backend:8000/api/judge_server_heartbeat/
           - TOKEN=CHANGE_THIS
           - judger_debug=1
-    oj-backend:
+    oj-backend: # backend 컨테이너의 경우 이미지 entrypoint의 스크립트로 Django 서버 시작
         image: snslabdocker/dcu_code_be:0.4
         container_name: oj-backend
         restart: always
-        depends_on:
+        depends_on: # 아래 3개의 컨테이너가 시작한 뒤 backend 컨테이너 실행 시작
           - oj-redis
           - oj-postgres
           - judge-server
-        volumes:
+        volumes: # HOST 장치에 data/backend 디렉토리 생성 후 컨테이너 내의 /data 디렉토리와 동기화한다.
           - ./data/backend:/data
-        environment:
+        environment: # 최초 배포 시 사용되는 환경 변수 값
           - OJ_ENV=production
           - POSTGRES_DB=onlinejudge
           - POSTGRES_USER=onlinejudge
           - POSTGRES_PASSWORD=onlinejudge
           - JUDGE_SERVER_TOKEN=CHANGE_THIS
+          # HTTPS 및 CDN 호스트 관련 옵션
           # - FORCE_HTTPS=1
           # - STATIC_CDN_HOST=cdn.oj.com
 
-    oj-frontend:
+    oj-frontend: # frontend의 경우 command parameter를 통해 node 웹 서버 실행 진행
         image: snslabdocker/dcu_code_fe:0.9
         container_name: oj-frontend
         restart: always
@@ -68,10 +70,10 @@ services:
         command: /bin/bash start_node.sh
         depends_on:
           - oj-backend
-        volumes:
+        volumes: # backend와 마찬가지로 컨테이너 - HOST 간 특정 디렉토리를 공유한다.
           - ./data/frontend:/data
         environment:
-                - TARGET=http://oj-backend:8000
+          - TARGET=http://oj-backend:8000
         ports:
           - "0.0.0.0:80:80"
           - "0.0.0.0:443:1443"
