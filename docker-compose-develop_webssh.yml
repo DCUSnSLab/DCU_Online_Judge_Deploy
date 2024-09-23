@@ -1,0 +1,96 @@
+version: "3"
+services:
+    oj-redis:
+        image: redis:4.0-alpine
+        container_name: oj-redis
+        restart: always
+        volumes:
+          - ./data/redis:/data
+  
+    oj-postgres:
+        image: postgres:10-alpine
+        container_name: oj-postgres
+        restart: always
+        volumes:
+          - ./data/postgres:/var/lib/postgresql/data
+        environment:
+          - POSTGRES_DB=onlinejudge
+          - POSTGRES_USER=onlinejudge
+          - POSTGRES_PASSWORD=onlinejudge
+
+    judge-server:
+        image: snslabdocker/judge_server:latest
+        container_name: judge-server
+        restart: always
+        cap_drop:
+          - SETPCAP
+          - MKNOD
+          - NET_BIND_SERVICE
+          - SYS_CHROOT
+          - SETFCAP
+          - FSETID
+        tmpfs:
+          - /tmp
+        volumes:
+          - ./data/backend/test_case:/test_case:ro
+          - ./data/judge_server/log:/log
+          - ./data/judge_server/run:/judger
+        environment:
+          - SERVICE_URL=http://judge-server:8080
+          - BACKEND_URL=http://oj-backend:8000/api/judge_server_heartbeat/
+          - TOKEN=CHANGE_THIS
+          - judger_debug=1
+    oj-backend:
+        image: harbor.cu.ac.kr/dcucode_dev/dcu_code_be:latest
+        container_name: oj-backend
+        restart: always
+        depends_on:
+          - oj-redis
+          - oj-postgres
+          - judge-server
+        volumes:
+          - ./data/backend:/data
+        environment:
+          - OJ_ENV=production
+          - POSTGRES_DB=onlinejudge
+          - POSTGRES_USER=onlinejudge
+          - POSTGRES_PASSWORD=onlinejudge
+          - JUDGE_SERVER_TOKEN=CHANGE_THIS
+          # - FORCE_HTTPS=1
+          # - STATIC_CDN_HOST=cdn.oj.com
+        ports:
+          - "0.0.0.0:5555:22"
+
+    oj-frontend:
+        image: snslabdocker/dcu_code_fe:0.9
+        container_name: oj-frontend
+        restart: always
+        #command: /bin/bash -c "while true; do echo test; sleep 100; done"
+        command: /bin/bash start_node.sh
+        depends_on:
+          - oj-backend
+        volumes:
+          - ./data/frontend:/data
+        environment:
+                - TARGET=http://oj-backend:8000
+        ports:
+          - "0.0.0.0:80:80"
+          - "0.0.0.0:443:1443"
+          - "0.0.0.0:5556:22"
+          
+    pgadmin:
+        container_name: pgadmin4_container
+        image: dpage/pgadmin4
+        restart: always
+        environment:
+          PGADMIN_DEFAULT_EMAIL: admin@admin.com
+          PGADMIN_DEFAULT_PASSWORD: root
+        ports:
+          - "5050:80"
+    
+    webssh:
+        container_name: harbor.cu.ac.kr/dcucode/dcu_webssh:latest
+        image: dcuwebssh
+        restart: always
+        ports:
+          - "0.0.0.0:2224:2224"
