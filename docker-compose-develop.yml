@@ -19,7 +19,7 @@ services:
           - POSTGRES_PASSWORD=onlinejudge
 
     judge-server:
-        image: snslabdocker/judge_server:latest
+        image: harbor.cu.ac.kr/dcucode/judgeserver:latest
         container_name: judge-server
         restart: always
         cap_drop:
@@ -41,7 +41,7 @@ services:
           - TOKEN=CHANGE_THIS
           - judger_debug=1
     oj-backend:
-        image: snslabdocker/dcu_code_be:0.4
+        image: harbor.cu.ac.kr/dcucode/dcu_code_be:latest
         container_name: oj-backend
         restart: always
         depends_on:
