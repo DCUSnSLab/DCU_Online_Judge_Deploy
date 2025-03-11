@@ -42,7 +42,7 @@ services:
           - judger_debug=1
 
     oj-backend:
-        image: harbor.cu.ac.kr/dcucode_dev/dcu_code_be:latest
+        image: harbor.cu.ac.kr/dcucode/dcu_code_be:latest
         container_name: oj-backend
         restart: always
         depends_on:
