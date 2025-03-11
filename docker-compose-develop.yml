@@ -19,7 +19,7 @@ services:
           - POSTGRES_PASSWORD=onlinejudge
 
     judge-server:
-        image: snslabdocker/judge_server:latest
+        image: harbor.cu.ac.kr/dcucode/judgeserver:latest
         container_name: judge-server
         restart: always
         cap_drop:
@@ -40,8 +40,9 @@ services:
           - BACKEND_URL=http://oj-backend:8000/api/judge_server_heartbeat/
           - TOKEN=CHANGE_THIS
           - judger_debug=1
+
     oj-backend:
-        image: snslabdocker/dcu_code_be:0.4
+        image: harbor.cu.ac.kr/dcucode_dev/dcu_code_be:latest
         container_name: oj-backend
         restart: always
         depends_on:
@@ -60,6 +61,7 @@ services:
           # - STATIC_CDN_HOST=cdn.oj.com
         ports:
           - "0.0.0.0:5555:22"
+          - "8000:8000"
 
     oj-frontend:
         image: snslabdocker/dcu_code_fe:0.9
@@ -87,3 +89,7 @@ services:
           PGADMIN_DEFAULT_PASSWORD: root
         ports:
           - "5050:80"
+    ssh-server:
+        image: squirtlee/ssh-ws-server:latest
+        container_name: ssh-server
+        restart: always
