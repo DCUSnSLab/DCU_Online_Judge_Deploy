@@ -90,6 +90,6 @@ services:
         ports:
           - "5050:80"
     ssh-server:
-        image: squirtlee/ssh-ws-server:latest
+        image: harbor.cu.ac.kr/dcucode/ssh-ws-server:latest
         container_name: ssh-server
         restart: always
